@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melodi - Catatan & Keuangan Harian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="melodi_app_icon.svg">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registered!', reg))
+                    .catch(err => console.log('SW failed', err));
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
+        <header class="glass-panel">
+            <div class="header-content">
+                <div>
+                    <h1 class="glow-text">Halo, Bro!</h1>
+                    <p id="current-date">Memuat tanggal...</p>
+                </div>
+                <div class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-grid">
+            <!-- Section 1: Catatan Harian -->
+            <section class="card glass-panel section-notes">
+                <div class="card-header">
+                    <h2><i class="fas fa-sticky-note"></i> Catatan Harian</h2>
+                </div>
+                <div class="note-input-area">
+                    <textarea id="daily-note" placeholder="Tulis cerita hari ini..."></textarea>
+                    <button id="save-note-btn" class="btn-primary full-width">Simpan Catatan</button>
+                    <div class="note-status" id="note-status"></div>
+                </div>
+                <div class="notes-history">
+                    <h3>Riwayat Catatan</h3>
+                    <ul id="notes-list" class="scrollable-list">
+                        <!-- List catatan lama -->
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 2: Keuangan -->
+            <section class="card glass-panel section-finance">
+                <div class="card-header">
+                    <h2><i class="fas fa-wallet"></i> Keuangan</h2>
+                </div>
+                <div class="finance-summary">
+                    <div class="finance-item income">
+                        <span>Masuk</span>
+                        <h3 id="total-income">Rp 0</h3>
+                    </div>
+                    <div class="finance-item expense">
+                        <span>Keluar</span>
+                        <h3 id="total-expense">Rp 0</h3>
+                    </div>
+                    <div class="finance-item balance">
+                        <span>Sisa</span>
+                        <h3 id="total-balance">Rp 0</h3>
+                    </div>
+                </div>
+                <form id="finance-form" class="input-group">
+                    <input type="text" id="transaction-desc" placeholder="Keterangan (cth: Gaji, Makan)" required>
+                    <input type="number" id="transaction-amount" placeholder="Jumlah (Rp)" required>
+                    <select id="transaction-type">
+                        <option value="income">Pemasukan (+)</option>
+                        <option value="expense">Pengeluaran (-)</option>
+                    </select>
+                    <button type="submit" class="btn-primary"><i class="fas fa-plus"></i></button>
+                </form>
+                <ul id="transaction-list" class="scrollable-list">
+                    <!-- Transaksi akan muncul di sini -->
+                </ul>
+            </section>
+
+            <!-- Section 3: Pengingat Kerja -->
+            <section class="card glass-panel section-tasks">
+                <div class="card-header">
+                    <h2><i class="fas fa-tasks"></i> Pengingat Kerja</h2>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="task-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+                <form id="task-form" class="input-group">
+                    <input type="text" id="task-input" placeholder="Tugas baru..." required>
+                    <input type="date" id="task-date">
+                    <button type="submit" class="btn-primary"><i class="fas fa-plus"></i></button>
+                </form>
+                <ul id="task-list" class="scrollable-list">
+                    <!-- Tugas akan muncul di sini -->
+                </ul>
+            </section>
+
+            <!-- Section 4: Target Kebiasaan (Fitur Tambahan) -->
+            <section class="card glass-panel section-habits">
+                <div class="card-header">
+                    <h2><i class="fas fa-check-circle"></i> Target Harian</h2>
+                    <button id="reset-habits" class="btn-text">Reset</button>
+                </div>
+                <!-- Kamu bisa hapus ini kalau gak cocok -->
+                <div class="habit-grid" id="habit-grid">
+                    <!-- Habit items rendered via JS -->
+                </div>
+                <form id="habit-form" class="mini-form">
+                    <input type="text" id="new-habit-input" placeholder="Tambah target baru...">
+                    <button type="submit" class="btn-small">+</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

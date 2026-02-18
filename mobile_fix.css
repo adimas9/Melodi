@@ -1,0 +1,62 @@
+/* Mobile Responsiveness Fixes */
+@media (max-width: 600px) {
+
+    /* 1. Header Adjustment */
+    header {
+        padding: 15px 20px;
+    }
+
+    .header-content h1 {
+        font-size: 1.5rem;
+    }
+
+    /* 2. Finance Summary - Stack or Grid */
+    .finance-summary {
+        flex-direction: column;
+        /* Stack vertically for clear reading */
+        gap: 15px;
+    }
+
+    .finance-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        text-align: left;
+    }
+
+    .finance-item h3 {
+        font-size: 1.2rem;
+    }
+
+    /* 3. Input Groups (Finance & Task Forms) */
+    .input-group {
+        flex-direction: column;
+    }
+
+    .input-group input,
+    .input-group select,
+    .input-group button {
+        width: 100%;
+    }
+
+    /* 4. Task Item */
+    .task-item {
+        flex-wrap: wrap;
+        /* Allow date to wrap if needed */
+    }
+
+    .task-info {
+        min-width: 0;
+        /* Prevent flex overflow */
+    }
+
+    /* 5. General Container */
+    .app-container {
+        padding: 15px;
+    }
+
+    .card {
+        padding: 20px;
+    }
+}

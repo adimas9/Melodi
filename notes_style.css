@@ -1,0 +1,65 @@
+/* Notes Section Updates */
+.note-input-area {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#daily-note {
+    min-height: 120px;
+    /* Smaller than before since it's just input */
+}
+
+.full-width {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.notes-history h3 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 5px;
+}
+
+.note-card {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    border-left: 3px solid var(--accent-color);
+    position: relative;
+    animation: fadeIn 0.3s ease;
+}
+
+.note-card .note-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+    display: block;
+}
+
+.note-card .note-content {
+    font-size: 0.95rem;
+    white-space: pre-wrap;
+    /* Keeps line breaks */
+    line-height: 1.5;
+}
+
+.note-delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.note-delete-btn:hover {
+    color: var(--danger-color);
+    opacity: 1;
+}

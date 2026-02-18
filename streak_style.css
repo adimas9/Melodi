@@ -1,0 +1,31 @@
+/* Streak Badge */
+.habit-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.streak-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 6px;
+    border-radius: 10px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.3s;
+}
+
+.habit-card.active .streak-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.streak-icon {
+    color: #f59e0b;
+    /* Amber/Fire color */
+}

@@ -1,0 +1,18 @@
+{
+    "name": "Melodi - Catatan & Keuangan",
+    "short_name": "Melodi",
+    "description": "Aplikasi produktivitas harian dengan fitur catatan, keuangan, dan pengingat.",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#0f172a",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "melodi_app_icon.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
