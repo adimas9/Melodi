@@ -339,12 +339,18 @@ function renderHabits() {
         const div = document.createElement('div');
         div.className = `habit-card ${h.active ? 'active' : ''}`;
 
-        // Content with Streak Badge
+        // Content with Streak Badge and Note
+        // Use an empty string if dailyNote is undefined or null
+        const noteHtml = (h.active && h.dailyNote)
+            ? `<small class="habit-note">${h.dailyNote}</small>`
+            : '';
+
         div.innerHTML = `
             ${h.text}
             <div class="streak-badge">
                 <i class="fas fa-fire streak-icon"></i> ${h.streak}
             </div>
+            ${noteHtml}
         `;
 
         div.onclick = () => toggleHabit(h.id);
@@ -370,15 +376,26 @@ window.toggleHabit = (id) => {
     if (habit) {
         if (!habit.active) {
             // Turning ON
+            // Prompt for daily progress note
+            let userNote = prompt(`Catatan untuk ${habit.text} hari ini? (Misal: Halaman 10-20, Lari 5km)`);
+
+            // If user cancels prompt (returns null), assume they didn't mean to click it? 
+            // Or just allow empty? Let's allow empty.
+            if (userNote === null) return; // Cancel toggling if they hit Cancel
+
             habit.active = true;
             habit.streak += 1;
             habit.lastDate = today;
+            habit.dailyNote = userNote; // Save the note
         } else {
             // Turning OFF (Undo)
-            habit.active = false;
-            if (habit.streak > 0) habit.streak -= 1;
-            // Revert date to yesterday to keep streak alive for tomorrow if we re-check it?
-            habit.lastDate = yesterday;
+            if (confirm(`Batalkan "${habit.text}" untuk hari ini? Streak akan berkurang.`)) {
+                habit.active = false;
+                if (habit.streak > 0) habit.streak -= 1;
+                // Revert date to yesterday to keep streak alive for tomorrow if we re-check it
+                habit.lastDate = yesterday;
+                habit.dailyNote = ""; // Clear note
+            }
         }
         saveToLocal();
         renderHabits();
