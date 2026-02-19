@@ -1,21 +1,23 @@
 :root {
-    --bg-dark: #3f0e20;
-    /* Deep Rose/Plum Background */
-    --text-primary: #fff1f2;
-    /* Soft Pink/White */
-    --text-secondary: #fda4af;
-    /* Muted Pink */
-    --accent-color: #fb7185;
-    /* Rose/Pink Accent */
-    --accent-glow: rgba(251, 113, 133, 0.5);
-    --success-color: #34d399;
-    /* Emerald Green (keeps good contrast) */
-    --danger-color: #f43f5e;
-    /* Rose Red */
-    --glass-bg: rgba(67, 20, 38, 0.7);
-    /* Dark Rose Glass */
-    --glass-border: rgba(255, 192, 203, 0.2);
+    --bg-dark: #fff0f5;
+    /* Lavender Blush (Light Pink) */
+    --text-primary: #881337;
+    /* Rose 900 (Dark Pink/Red for text) */
+    --text-secondary: #db2777;
+    /* Pink 600 (Medium Pink) */
+    --accent-color: #f472b6;
+    /* Pink 400 (Soft Hot Pink) */
+    --accent-glow: rgba(244, 114, 182, 0.4);
+    --success-color: #059669;
+    /* Emerald 600 (Darker Green for contrast) */
+    --danger-color: #be123c;
+    /* Rose 700 */
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    /* White Glass */
+    --glass-border: rgba(251, 207, 232, 0.5);
+    /* Pink 200 Border */
     --font-main: 'Outfit', sans-serif;
+    --nav-height: 80px;
 }
 
 * {
@@ -137,23 +139,26 @@ h1 {
 
 /* Grid Layout */
 .dashboard-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    grid-template-areas:
-        "notes finance"
-        "notes tasks"
-        "habits tasks";
+    display: block;
+    /* No more grid */
+    padding-bottom: var(--nav-height);
 }
 
+section {
+    display: none;
+    /* Hide all by default */
+    animation: fadeIn 0.4s ease;
+}
+
+section.active-section {
+    display: block;
+    /* Show active */
+}
+
+/* Hide grid media queries since we are stack/tab based now */
 @media (max-width: 900px) {
     .dashboard-grid {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            "notes"
-            "finance"
-            "tasks"
-            "habits";
+        display: block;
     }
 }
 
@@ -209,7 +214,8 @@ h1 {
 textarea,
 input,
 select {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.5);
+    /* Lighter background for inputs */
     border: 1px solid var(--glass-border);
     color: var(--text-primary);
     padding: 12px;
@@ -224,6 +230,7 @@ textarea:focus,
 input:focus,
 select:focus {
     border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.8);
     box-shadow: 0 0 10px var(--accent-glow);
 }
 
@@ -480,36 +487,16 @@ button {
 }
 
 /* Streak Badge */
+/* Streak Badge */
 .habit-card {
     position: relative;
-    overflow: hidden;
-}
-
-.streak-badge {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 2px 6px;
-    border-radius: 10px;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    transition: all 0.3s;
-}
-
-.habit-card.active .streak-badge {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
 }
 
 .streak-icon {
     /* Fire Color Gradient */
     background: linear-gradient(180deg, #fef08a 0%, #f59e0b 50%, #dc2626 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.5));
 }
@@ -634,9 +621,110 @@ button {
 
     .app-container {
         padding: 15px;
+        padding-bottom: 90px;
+        /* Space for bottom nav */
     }
 
     .card {
         padding: 20px;
     }
+}
+
+/* Bottom Navigation Styles */
+.bottom-nav {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.9);
+    /* White base */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 5px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 500px;
+    padding: 25px;
+    background: #fff0f5;
+    /* Light Pink Match */
+    border: 1px solid var(--accent-color);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Habit History Log Styles */
+#habit-logs-list .note-card {
+    border-left-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.4);
+}
+
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.nav-item i {
+    font-size: 1.2rem;
+    margin-bottom: 2px;
+    transition: transform 0.3s ease;
+}
+
+.nav-item.active {
+    color: #fff;
+    background: var(--accent-color);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.nav-item.active i {
+    transform: translateY(-2px);
+}
+
+.nav-item:hover:not(.active) {
+    color: var(--accent-color);
 }

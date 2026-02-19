@@ -6,16 +6,15 @@
     "display": "standalone",
     "background_color": "#3f0e20",
     "theme_color": "#db2777",
-    "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "icon.png",
+            "src": "iconnn.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "icon.png",
+            "src": "iconnn.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"

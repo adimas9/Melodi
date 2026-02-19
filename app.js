@@ -3,7 +3,8 @@ const appState = {
     notes: [], // Changed to array by default
     transactions: [],
     tasks: [],
-    habits: []
+    habits: [],
+    habitLogs: []
 };
 
 // Utilities
@@ -28,6 +29,7 @@ const loadFromLocal = () => {
         appState.transactions = parsed.transactions || [];
         appState.tasks = parsed.tasks || [];
         appState.habits = parsed.habits || [];
+        appState.habitLogs = parsed.habitLogs || [];
         renderAll();
     }
 };
@@ -46,44 +48,127 @@ document.addEventListener('DOMContentLoaded', () => {
     initFinance();
     initTasks();
     initHabits();
+    initNavigation();
 });
+
+// --- Navigation Section (Tabbed View) ---
+function initNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('section');
+
+    // Helper to switch tabs
+    const switchTab = (targetId) => {
+        // 1. Hide all sections
+        sections.forEach(sec => {
+            sec.classList.remove('active-section');
+            sec.style.display = 'none'; // Ensure hidden
+        });
+
+        // 2. Show target section
+        const targetSection = document.querySelector(`.${targetId} `);
+        if (targetSection) {
+            targetSection.style.display = 'block';
+            setTimeout(() => targetSection.classList.add('active-section'), 10);
+        }
+
+        // 3. Update Nav State
+        navItems.forEach(nav => {
+            nav.classList.remove('active');
+            if (nav.getAttribute('data-target') === targetId) {
+                nav.classList.add('active');
+            }
+        });
+
+        // 4. Update Header Title (Optional, for better UX)
+        const titles = {
+            'section-notes': 'Catatan Harian',
+            'section-finance': 'Dompet Digital',
+            'section-tasks': 'Daftar Tugas',
+            'section-habits': 'Target Harian'
+        };
+        const headerTitle = document.querySelector('.header-content h1');
+        if (headerTitle && titles[targetId]) {
+            headerTitle.textContent = titles[targetId];
+        }
+    };
+
+    // Event Listeners
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = item.getAttribute('data-target');
+            switchTab(targetId);
+        });
+    });
+
+    // Initialize: Show Notes by default
+    switchTab('section-notes');
+}
 
 // --- Notes Section ---
 function initNotes() {
     const saveBtn = document.getElementById('save-note-btn');
     const input = document.getElementById('daily-note');
 
-    // Migration: Convert old string format to array object if needed
+    // Migration & Safety
     if (typeof appState.notes === 'string') {
-        if (appState.notes.trim() !== "") {
-            appState.notes = [{
-                id: Date.now(),
-                text: appState.notes,
-                date: new Date().toISOString()
-            }];
-        } else {
-            appState.notes = [];
-        }
+        appState.notes = appState.notes.trim() ? [{ id: Date.now(), text: appState.notes, date: new Date().toISOString() }] : [];
         saveToLocal();
     }
-    // Ensure it's an array (just in case of other corruption)
     if (!Array.isArray(appState.notes)) appState.notes = [];
 
     saveBtn.addEventListener('click', () => {
         const text = input.value;
         if (text.trim()) {
-            const newNote = {
-                id: Date.now(),
-                text: text,
-                date: new Date().toISOString()
-            };
-            appState.notes.unshift(newNote); // Add to top
-            saveToLocal();
-            renderNotes();
-            input.value = ""; // Clear input
-            showStatus('Catatan tersimpan ke riwayat!');
+            // Check if we are editing
+            const editingId = saveBtn.getAttribute('data-editing-id');
+            if (editingId) {
+                // Update existing note
+                const note = appState.notes.find(n => n.id == editingId);
+                if (note) {
+                    note.text = text;
+                    note.date = new Date().toISOString(); // Update date on edit? Or keep original? Let's update.
+                    saveToLocal();
+                    renderNotes();
+                    showStatus('Catatan diperbarui!');
+                }
+                // Reset mode
+                saveBtn.removeAttribute('data-editing-id');
+                saveBtn.textContent = 'Simpan Catatan';
+            } else {
+                // New Note
+                const newNote = {
+                    id: Date.now(),
+                    text: text,
+                    date: new Date().toISOString()
+                };
+                appState.notes.unshift(newNote);
+                saveToLocal();
+                renderNotes();
+                showStatus('Catatan tersimpan!');
+            }
+            input.value = "";
         }
     });
+
+    // Modal Logic
+    const modal = document.getElementById('note-modal');
+    const modalInput = document.getElementById('modal-note-input');
+    const modalSave = document.getElementById('modal-save-btn');
+    const modalCancel = document.getElementById('modal-cancel-btn');
+
+    modalCancel.onclick = () => modal.classList.add('hidden');
+
+    modalSave.onclick = () => {
+        const id = modal.getAttribute('data-id');
+        const note = appState.notes.find(n => n.id == id);
+        if (note) {
+            note.text = modalInput.value;
+            saveToLocal();
+            renderNotes();
+            modal.classList.add('hidden');
+        }
+    };
 
     renderNotes();
 }
@@ -95,14 +180,49 @@ function renderNotes() {
     appState.notes.forEach(note => {
         const li = document.createElement('li');
         li.className = 'note-card';
+
+        // Truncate logic
+        const isLong = note.text.length > 100;
+        const displayText = isLong ? note.text.substring(0, 100) + '...' : note.text;
+
         li.innerHTML = `
             <small class="note-date">${new Date(note.date).toLocaleString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</small>
-            <div class="note-content">${note.text}</div>
-            <button class="note-delete-btn" onclick="deleteNote(${note.id})"><i class="fas fa-trash"></i></button>
-        `;
+            <div class="note-content">${displayText}</div>
+            <div class="note-actions" style="margin-top: 10px; display: flex; gap: 10px;">
+                ${isLong ? `<button class="btn-text" onclick="viewNote(${note.id})">Baca Selengkapnya</button>` : ''}
+                <button class="btn-text" onclick="editNote(${note.id})">Edit</button>
+                <button class="btn-text" onclick="deleteNote(${note.id})" style="color: var(--danger-color)">Hapus</button>
+            </div>
+`;
         list.appendChild(li);
     });
 }
+
+window.viewNote = (id) => {
+    const note = appState.notes.find(n => n.id === id);
+    if (note) {
+        const modal = document.getElementById('note-modal');
+        const modalInput = document.getElementById('modal-note-input');
+        modalInput.value = note.text;
+        modal.setAttribute('data-id', id);
+        modal.classList.remove('hidden');
+    }
+};
+
+window.editNote = (id) => {
+    const note = appState.notes.find(n => n.id === id);
+    if (note) {
+        const input = document.getElementById('daily-note');
+        const saveBtn = document.getElementById('save-note-btn');
+        input.value = note.text;
+        saveBtn.textContent = 'Update Catatan';
+        saveBtn.setAttribute('data-editing-id', id);
+        input.focus();
+
+        // Scroll to top of notes section if needed
+        document.querySelector('.note-input-area').scrollIntoView({ behavior: 'smooth' });
+    }
+};
 
 window.deleteNote = (id) => {
     if (confirm('Hapus catatan ini?')) {
@@ -213,6 +333,7 @@ function initTasks() {
             form.reset();
         }
     });
+    renderTasks(); // Initial render
 }
 
 function renderTasks() {
@@ -242,7 +363,7 @@ function renderTasks() {
     // Update Progress
     const total = appState.tasks.length;
     const percentage = total === 0 ? 0 : (completedCount / total) * 100;
-    progressBar.style.width = `${percentage}%`;
+    progressBar.style.width = `${percentage}% `;
 }
 
 window.toggleTask = (id) => {
@@ -261,10 +382,14 @@ window.deleteTask = (id) => {
 };
 
 // --- Habits Section ---
-// --- Habits Section ---
 function initHabits() {
     const form = document.getElementById('habit-form');
-    const resetBtn = document.getElementById('reset-habits');
+    const resetBtn = document.getElementById('reset-habits'); // Removed from DOM but keep ref safe
+
+    // Migrate/Safe check for habitLogs
+    if (!appState.habitLogs || !Array.isArray(appState.habitLogs)) {
+        appState.habitLogs = [];
+    }
 
     // Default habits
     if (appState.habits.length === 0) {
@@ -298,7 +423,7 @@ function initHabits() {
             }
         }
     });
-    saveToLocal(); // Save the reset state
+    saveToLocal();
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -317,18 +442,19 @@ function initHabits() {
         }
     });
 
-    resetBtn.addEventListener('click', () => {
-        // Manual reset (debug mostly, or "give up")
-        appState.habits.forEach(h => {
-            h.active = false;
-            // Don't reset streak on manual reset button? Or maybe user wants to restart day?
-            // Let's just reset active status.
-        });
-        saveToLocal();
-        renderHabits();
-    });
+    // resetBtn.addEventListener('click', () => { // This button is removed from DOM
+    //     // Manual reset (debug mostly, or "give up")
+    //     appState.habits.forEach(h => {
+    //         h.active = false;
+    //         // Don't reset streak on manual reset button? Or maybe user wants to restart day?
+    //         // Let's just reset active status.
+    //     });
+    //     saveToLocal();
+    //     renderHabits();
+    // });
 
     renderHabits();
+    renderHabitLogs();
 }
 
 function renderHabits() {
@@ -337,32 +463,48 @@ function renderHabits() {
 
     appState.habits.forEach(h => {
         const div = document.createElement('div');
-        div.className = `habit-card ${h.active ? 'active' : ''}`;
+        div.className = `habit - card ${h.active ? 'active' : ''} `;
 
-        // Content with Streak Badge and Note
-        // Use an empty string if dailyNote is undefined or null
-        const noteHtml = (h.active && h.dailyNote)
-            ? `<small class="habit-note">${h.dailyNote}</small>`
-            : '';
-
+        // Note: We don't show the dailyNote in the card anymore if it's in the history log?
+        // Let's keep it simple here, just the streak.
         div.innerHTML = `
             ${h.text}
-            <div class="streak-badge">
-                <i class="fas fa-fire streak-icon"></i> ${h.streak}
-            </div>
-            ${noteHtml}
-        `;
+<div class="streak-badge">
+    <i class="fas fa-fire streak-icon"></i> ${h.streak}
+</div>
+`;
 
         div.onclick = () => toggleHabit(h.id);
 
         div.oncontextmenu = (e) => {
             e.preventDefault();
-            if (confirm(`Hapus kebiasaan "${h.text}"?`)) {
+            if (confirm(`Hapus kebiasaan "${h.text}" ? `)) {
                 deleteHabit(h.id);
             }
         };
 
         grid.appendChild(div);
+    });
+}
+
+function renderHabitLogs() {
+    const list = document.getElementById('habit-logs-list');
+    list.innerHTML = '';
+
+    // Sort by newest
+    const sortedLogs = [...appState.habitLogs].reverse();
+
+    sortedLogs.forEach(log => {
+        const li = document.createElement('li');
+        li.className = 'note-card'; // Reuse note style
+        li.innerHTML = `
+            <small class="note-date">${new Date(log.date).toLocaleString('id-ID')}</small>
+            <div class="note-content">
+                <strong>${log.habitName}</strong>: ${log.note || "Tercapai"}
+            </div>
+            <button class="btn-text" onclick="deleteHabitLog(${log.id})" style="color:red; float:right; margin-top:-20px;">Hapus</button>
+        `;
+        list.appendChild(li);
     });
 }
 
@@ -376,29 +518,35 @@ window.toggleHabit = (id) => {
     if (habit) {
         if (!habit.active) {
             // Turning ON
-            // Prompt for daily progress note
-            let userNote = prompt(`Catatan untuk ${habit.text} hari ini? (Misal: Halaman 10-20, Lari 5km)`);
-
-            // If user cancels prompt (returns null), assume they didn't mean to click it? 
-            // Or just allow empty? Let's allow empty.
-            if (userNote === null) return; // Cancel toggling if they hit Cancel
+            let userNote = prompt(`Catatan untuk ${habit.text} hari ini ? `);
+            // If cancel, abort
+            if (userNote === null) return;
 
             habit.active = true;
             habit.streak += 1;
             habit.lastDate = today;
-            habit.dailyNote = userNote; // Save the note
+
+            // LOG IT
+            appState.habitLogs.push({
+                id: Date.now(),
+                habitName: habit.text,
+                note: userNote,
+                date: new Date().toISOString()
+            });
+
         } else {
             // Turning OFF (Undo)
-            if (confirm(`Batalkan "${habit.text}" untuk hari ini? Streak akan berkurang.`)) {
+            if (confirm(`Batalkan "${habit.text}" untuk hari ini ? Streak akan berkurang.`)) {
                 habit.active = false;
                 if (habit.streak > 0) habit.streak -= 1;
-                // Revert date to yesterday to keep streak alive for tomorrow if we re-check it
                 habit.lastDate = yesterday;
-                habit.dailyNote = ""; // Clear note
+                // Note: We don't automatically delete the log, or maybe we should?
+                // Let's leave logs as historical record unless manually deleted.
             }
         }
         saveToLocal();
         renderHabits();
+        renderHabitLogs();
     }
 };
 
@@ -408,10 +556,20 @@ window.deleteHabit = (id) => {
     renderHabits();
 };
 
+window.deleteHabitLog = (id) => {
+    if (confirm("Hapus riwayat ini?")) {
+        appState.habitLogs = appState.habitLogs.filter(l => l.id !== id);
+        saveToLocal();
+        renderHabitLogs();
+    }
+};
+
+
 // Global Render Helper
 function renderAll() {
     renderFinance();
     renderTasks();
     renderHabits();
+    renderHabitLogs();
     // Notes usually just set value, handled in init
 }

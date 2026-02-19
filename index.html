@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="icon" type="image/png" href="iconnn.png">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -30,6 +30,18 @@
         <div class="blob blob-3"></div>
     </div>
 
+    <!-- Modal for Reading/Editing Notes -->
+    <div id="note-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-panel">
+            <h3 id="modal-title">Edit Catatan</h3>
+            <textarea id="modal-note-input" class="full-width" rows="10"></textarea>
+            <div class="modal-buttons">
+                <button id="modal-cancel-btn" class="btn-text">Batal</button>
+                <button id="modal-save-btn" class="btn-primary">Simpan</button>
+            </div>
+        </div>
+    </div>
+
     <div class="app-container">
         <header class="glass-panel">
             <div class="header-content">
@@ -37,9 +49,7 @@
                     <h1 class="glow-text">Halo, Bro!</h1>
                     <p id="current-date">Memuat tanggal...</p>
                 </div>
-                <div class="theme-toggle">
-                    <i class="fas fa-moon"></i>
-                </div>
+                <!-- Theme toggle removed as we enforce Pink -->
             </div>
         </header>
 
@@ -117,18 +127,46 @@
             <section class="card glass-panel section-habits">
                 <div class="card-header">
                     <h2><i class="fas fa-check-circle"></i> Target Harian</h2>
-                    <button id="reset-habits" class="btn-text">Reset</button>
                 </div>
-                <!-- Kamu bisa hapus ini kalau gak cocok -->
+
                 <div class="habit-grid" id="habit-grid">
                     <!-- Habit items rendered via JS -->
                 </div>
-                <form id="habit-form" class="mini-form">
+
+                <!-- History Logs for Habits -->
+                <div class="notes-history" style="margin-top: 20px;">
+                    <h3>Riwayat Target</h3>
+                    <ul id="habit-logs-list" class="scrollable-list">
+                        <!-- Habit logs here -->
+                    </ul>
+                </div>
+
+                <form id="habit-form" class="mini-form" style="margin-top: 15px;">
                     <input type="text" id="new-habit-input" placeholder="Tambah target baru...">
                     <button type="submit" class="btn-small">+</button>
                 </form>
             </section>
         </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="#notes" class="nav-item active" data-target="section-notes">
+                <i class="fas fa-sticky-note"></i>
+                <span>Catatan</span>
+            </a>
+            <a href="#finance" class="nav-item" data-target="section-finance">
+                <i class="fas fa-wallet"></i>
+                <span>Dompet</span>
+            </a>
+            <a href="#tasks" class="nav-item" data-target="section-tasks">
+                <i class="fas fa-tasks"></i>
+                <span>Tugas</span>
+            </a>
+            <a href="#habits" class="nav-item" data-target="section-habits">
+                <i class="fas fa-check-circle"></i>
+                <span>Target</span>
+            </a>
+        </nav>
     </div>
 
     <script src="app.js"></script>
