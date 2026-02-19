@@ -448,16 +448,34 @@ button {
 .mini-form {
     display: flex;
     gap: 8px;
+    align-items: center;
+}
+
+.mini-form input {
+    flex: 1;
 }
 
 .btn-small {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    width: 40px;
+    background: var(--accent-color);
+    color: #fff;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px var(--accent-glow);
+    transition: opacity 0.2s, transform 0.2s;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.btn-small:hover {
-    background: var(--accent-color);
+.btn-small:active {
+    opacity: 0.85;
+    transform: scale(0.95);
 }
 
 .btn-text {

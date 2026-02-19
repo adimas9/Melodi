@@ -315,11 +315,16 @@ window.deleteTransaction = (id) => {
 // --- Tasks Section ---
 function initTasks() {
     const form = document.getElementById('task-form');
+    const dateInput = document.getElementById('task-date');
+
+    // Set default date to today
+    const todayStr = new Date().toISOString().split('T')[0];
+    dateInput.value = todayStr;
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = document.getElementById('task-input').value;
-        const date = document.getElementById('task-date').value;
+        const date = dateInput.value;
 
         if (text) {
             appState.tasks.push({
@@ -331,6 +336,8 @@ function initTasks() {
             saveToLocal();
             renderTasks();
             form.reset();
+            // Restore default date after reset
+            dateInput.value = todayStr;
         }
     });
     renderTasks(); // Initial render
